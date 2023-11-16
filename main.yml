@@ -3,12 +3,10 @@
   hosts: 127.0.0.1
   connection: local
   vars:
-    git_user_name: "Your Name"
-    git_user_email: "your.email@example.com"
+    git_user_name: ""
+    git_user_email: ""
     git_editor: "code"
-    
-  tasks:
-
+    skip_git_config: false
   tasks:
     - name: Install required packages
       become: yes
@@ -26,9 +24,15 @@
         - clang-tidy
         - libcriterion-dev
 
-    - name:
+    - name: Check if git_user_name and git_user_email are provided
+      fail:
+        msg: "Both git_user_name and git_user_email are required."
+      when: not skip_git_config and (git_user_name == "" or git_user_email == "")
+
+    - name: Set Git editor
       command: git config --global core.editor "{{ git_editor }} --wait" 
       ignore_errors: # Ignore errors in case the core.editor is already set
+      when: not skip_git_config
 
     - name: Set Git user.name
       command: git config --global user.name "{{ git_user_name }}"
@@ -39,7 +43,8 @@
       ignore_errors: yes  # Ignore errors in case the user.email is already set
 
     - name: Verify Git configuration
-      command: git config --list | grep -E 'user.name|user.email'
+      ansible.builtin.shell:
+        cmd: git config --list | grep -E 'user.name|user.email'
       register: git_config_output
       changed_when: false  # Do not mark the task as changed if the configuration is already set
 
