@@ -6,47 +6,72 @@
     git_user_name: ""
     git_user_email: ""
     git_editor: "code"
+    skip_git_editor: false
     skip_git_config: false
   tasks:
-    - name: Install required packages
-      become: yes
-      become_method: sudo
-      apt:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - git
-        - gcc
-        - gdb
-        - make
-        - cmake
-        - clang-format
-        - clang-tidy
-        - libcriterion-dev
-
     - name: Check if git_user_name and git_user_email are provided
       fail:
         msg: "Both git_user_name and git_user_email are required."
-      when: not skip_git_config and (git_user_name == "" or git_user_email == "")
+      when: git_user_name == "" or git_user_email == ""
+
+    - name: Install git (apt)
+      become: true
+      ansible.builtin.apt:
+        name: git
+      when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Set Git editor
       command: git config --global core.editor "{{ git_editor }} --wait" 
       ignore_errors: # Ignore errors in case the core.editor is already set
-      when: not skip_git_config
+      when: not skip_git_editor
 
     - name: Set Git user.name
       command: git config --global user.name "{{ git_user_name }}"
       ignore_errors: yes  # Ignore errors in case the user.name is already set
+      when: not skip_git_config
 
     - name: Set Git user.email
       command: git config --global user.email "{{ git_user_email }}"
       ignore_errors: yes  # Ignore errors in case the user.email is already set
+      when: not skip_git_config
 
-    - name: Verify Git configuration
-      ansible.builtin.shell:
-        cmd: git config --list | grep -E 'user.name|user.email'
-      register: git_config_output
-      changed_when: false  # Do not mark the task as changed if the configuration is already set
+    - name: Install gcc (apt)
+      become: true
+      ansible.builtin.apt:
+        name: gcc
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install gdb (apt)
+      become: true
+      ansible.builtin.apt:
+        name: gdb
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install make (apt)
+      become: true
+      ansible.builtin.apt:
+        name: make
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install cmake (apt)
+      become: true
+      ansible.builtin.apt:
+        name: cmake
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install C formatter/linter (apt)
+      become: true
+      ansible.builtin.apt:
+        name:
+          - clang-format
+          - clang-tidy
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install C formatter/linter (apt)
+      become: true
+      ansible.builtin.apt:
+        name: libcriterion-dev
+      when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Install VSCode extensions
       ansible.builtin.shell: code --install-extension {{ item }}
