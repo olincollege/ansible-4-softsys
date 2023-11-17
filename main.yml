@@ -20,6 +20,11 @@
         name: git
       when: ansible_facts['distribution'] == "Ubuntu"
 
+    - name: Install git (Homebrew)
+      community.general.homebrew:
+        name: git
+      when: ansible_facts['distribution'] == "MacOSX"
+
     - name: Set Git editor
       command: git config --global core.editor "{{ git_editor }} --wait" 
       ignore_errors: # Ignore errors in case the core.editor is already set
@@ -41,11 +46,21 @@
         name: gcc
       when: ansible_facts['distribution'] == "Ubuntu"
 
+    - name: Install gcc (Homebrew)
+      community.general.homebrew:
+        name: gcc
+      when: ansible_facts['distribution'] == "MacOSX"
+
     - name: Install gdb (apt)
       become: true
       ansible.builtin.apt:
         name: gdb
       when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install gdb (Homebrew)
+      community.general.homebrew:
+        name: gdb
+      when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Install make (apt)
       become: true
@@ -53,11 +68,21 @@
         name: make
       when: ansible_facts['distribution'] == "Ubuntu"
 
+    - name: Install make (Homebrew)
+      community.general.homebrew:
+        name: make
+      when: ansible_facts['distribution'] == "MacOSX"
+
     - name: Install cmake (apt)
       become: true
       ansible.builtin.apt:
         name: cmake
       when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install cmake (Homebrew)
+      community.general.homebrew:
+        name: cmake
+      when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Install C formatter/linter (apt)
       become: true
@@ -67,11 +92,23 @@
           - clang-tidy
       when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install C formatter/linter (apt)
+    - name: Install C formatter/linter (Homebrew)
+      community.general.homebrew:
+        name:
+          - clang-format
+          - clang-tidy
+      when: ansible_facts['distribution'] == "MacOSX"
+
+    - name: Install Criterion (apt)
       become: true
       ansible.builtin.apt:
         name: libcriterion-dev
       when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install Criterion (Homebrew)
+      community.general.homebrew:
+        name: criterion
+      when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Install VSCode extensions
       ansible.builtin.shell: code --install-extension {{ item }}
