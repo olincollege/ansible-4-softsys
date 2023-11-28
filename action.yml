@@ -1,0 +1,16 @@
+# action.yml
+name: "test-ansible-playbook"
+description: "Test ansible playbook"
+inputs:
+  path-to-playbook:
+    description: "Path to the ansible playbook"
+    required: true
+    default: "main.yml"
+outputs:
+  results:
+    description: "The results of the playbook"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.path-to-playbook }}
