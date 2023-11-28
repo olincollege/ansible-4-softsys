@@ -18,7 +18,3 @@ jobs:
       - name: Test Ansible playbook
         uses: ./ # Uses an action in the root directory
         id: test-ansible-playbook
-        with:
-          path-to-playbook: main.yml
-      - name: Get the results
-        run: echo "Results -- ${{ steps.test-ansible-playbook.outputs.results }}"
