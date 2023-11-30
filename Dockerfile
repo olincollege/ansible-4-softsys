@@ -12,4 +12,4 @@ USER ${ADMIN}
 WORKDIR /home/${ADMIN}
 COPY $PLAYBOOK /home/${ADMIN}
 ENV PLAYBOOK=${PLAYBOOK}
-CMD ansible-playbook $PLAYBOOK --extra-vars "git_user_name=some_user git_user_email=some_email@some_domain.com"
+CMD ansible-playbook -K $PLAYBOOK -e "git_user_name=Alan Turing git_user_email=alan@turing.org"

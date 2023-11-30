@@ -1,0 +1,32 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup_job:
+    runs-on: ubuntu-22.04
+    name: Setup for ansible testing
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install Ansible and sudo
+        run: |
+          apt-get update && apt-get install -y \
+          sudo \
+          ansible
+      - name: Create User
+        run: |
+          adduser --gecos "" admin && \
+          passwd -d admin && \ 
+          usermod -aG sudo admin
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test Ansible playbook
+        run: |
+          ansible-playbook -K ~/ansible-4-softsys/main.yml -e "git_user_name=Alan Turing git_user_email=alan@turing.org"
