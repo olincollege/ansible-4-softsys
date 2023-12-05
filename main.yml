@@ -23,10 +23,50 @@
       when: (github_token == "") and not skip_ssh
 
     - name: Install VSCode (apt)
-      become: true
-      ansible.builtin.apt:
-        name: code
-        state: present
+      block:
+        - name: Install GPG
+          become: true
+          ansible.builtin.apt:
+            name: gpg
+        - name: Get Microsoft GPG key needed to add package repo
+          ansible.builtin.get_url:
+            url: https://packages.microsoft.com/keys/microsoft.asc
+            dest: "{{ apt_key_download_path }}"
+            force: true
+          when: not ansible_check_mode  # (Bug ansible/ansible#65687)
+          register: download_gpg_key
+        # Docker has the file as an ASCII armored PGP block (starts and ends
+        # with -----BEGIN PGP PUBLIC KEY BLOCK-----), and this needs to be
+        # converted into a binary format before adding it to the set of apt
+        # keyrings.
+        - name: Dearmor GPG key and add to keyring
+          become: true
+          ansible.builtin.command:
+            # The --yes flag ensures that the output keyring is overwritten in
+            # case a new file was downloaded in the previous task.
+            cmd: >-
+              gpg --yes --dearmor -o {{ apt_keyring_path }}
+              {{ apt_key_download_path }}
+          when: download_gpg_key.changed
+        - name: Get architecture name from dpkg
+          ansible.builtin.command:
+            cmd: dpkg --print-architecture
+          changed_when: false
+          register: dpkg_arch
+        - name: Add VSCode repository
+          become: true
+          apt_repository:
+            filename: vscode
+            repo: >-
+              deb [arch={{ dpkg_arch.stdout }} signed-by={{ apt_keyring_path }}]
+              https://packages.microsoft.com/repos/code stable main
+            state: present
+            update_cache: true
+        - name: Install VSCode (apt)
+          become: true
+          ansible.builtin.apt:
+            name: code
+            state: present
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Install VSCode (Homebrew)
