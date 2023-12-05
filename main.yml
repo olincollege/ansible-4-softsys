@@ -6,13 +6,21 @@
     git_user_name: ""
     git_user_email: ""
     git_editor: "code"
+    github_ssh_key_title: "SSH key for SoftSys"
+    github_token: ""
     skip_git_editor: false
     skip_git_config: false
+    skip_ssh: false
   tasks:
     - name: Check if git_user_name and git_user_email are provided
       fail:
-        msg: "Both git_user_name and git_user_email are required."
-      when: git_user_name == "" or git_user_email == ""
+        msg: "Please enter your git_user_name and git_user_email to set up the config or use the skip_git_config flag"
+      when: (git_user_name == "" or git_user_email == "") and not skip_git_config
+
+    - name: Check if github_token is provided
+      fail:
+        msg: "Please enter your github_token to add your ssh key or use the skip_ssh flag. If you need to generate a token, please refer to the README."
+      when: (github_token == "") and not skip_ssh
 
     - name: Install git (apt)
       become: true
@@ -32,12 +40,12 @@
 
     - name: Set Git user.name
       command: git config --global user.name "{{ git_user_name }}"
-      ignore_errors: yes  # Ignore errors in case the user.name is already set
+      ignore_errors: yes
       when: not skip_git_config
 
     - name: Set Git user.email
       command: git config --global user.email "{{ git_user_email }}"
-      ignore_errors: yes  # Ignore errors in case the user.email is already set
+      ignore_errors: yes
       when: not skip_git_config
 
     - name: Install gcc (apt)
@@ -117,3 +125,30 @@
         - ms-vscode.cpptools
         - ms-vscode.cmake-tools
         - xaver.clang-format
+
+    - name: Create SSH Key
+      command: ssh-keygen -t ecdsa -N "" -f $HOME/.ssh/id_ecdsa
+      args:
+        creates: "{{ ansible_env.HOME }}/.ssh/id_ecdsa"
+      when: not skip_ssh
+
+    - name: Retrieve SSH Public Key
+      command: cat $HOME/.ssh/id_ecdsa.pub
+      register: public_key
+      when: not skip_ssh
+
+    - name: Add SSH Key to GitHub
+      uri:
+        url: https://api.github.com/user/keys
+        method: POST
+        body_format: json
+        headers:
+          Authorization: "token {{ github_token }}"
+          Content-Type: "application/json"
+        body:
+          title: "{{ github_ssh_key_title }}"
+          key: "{{ public_key.stdout }}"
+      register: result
+      ignore_errors: true
+      when: not skip_ssh
+
