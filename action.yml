@@ -1,0 +1,6 @@
+# action.yml
+name: "test-ansible-playbook"
+description: "Test ansible playbook"
+runs:
+  using: "docker"
+  image: "Dockerfile"
