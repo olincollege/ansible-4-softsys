@@ -1,4 +1,3 @@
-# Build an image to test an Ansible playbook for installing whisper.cpp.
 FROM ubuntu:22.04
 ARG ADMIN=admin
 ARG PLAYBOOK=main.yml
