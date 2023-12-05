@@ -11,6 +11,8 @@
     skip_git_editor: false
     skip_git_config: false
     skip_ssh: false
+    apt_key_download_path: /tmp/microsoft.asc
+    apt_keyring_path: /etc/apt/keyrings/microsoft.gpg
   tasks:
     - name: Check if git_user_name and git_user_email are provided
       fail:
@@ -33,7 +35,7 @@
             url: https://packages.microsoft.com/keys/microsoft.asc
             dest: "{{ apt_key_download_path }}"
             force: true
-          when: not ansible_check_mode  # (Bug ansible/ansible#65687)
+          when: not ansible_check_mode # (Bug ansible/ansible#65687)
           register: download_gpg_key
         # Docker has the file as an ASCII armored PGP block (starts and ends
         # with -----BEGIN PGP PUBLIC KEY BLOCK-----), and this needs to be
@@ -87,7 +89,7 @@
       when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Set Git editor
-      command: git config --global core.editor "{{ git_editor }} --wait" 
+      command: git config --global core.editor "{{ git_editor }} --wait"
       ignore_errors: # Ignore errors in case the core.editor is already set
       when: not skip_git_editor
 
@@ -204,4 +206,3 @@
       register: result
       ignore_errors: true
       when: not skip_ssh
-
