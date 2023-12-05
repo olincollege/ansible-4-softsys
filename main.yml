@@ -22,6 +22,19 @@
         msg: "Please enter your github_token to add your ssh key or use the skip_ssh flag. If you need to generate a token, please refer to the README."
       when: (github_token == "") and not skip_ssh
 
+    - name: Install VSCode (apt)
+      become: true
+      ansible.builtin.apt:
+        name: code
+        state: present
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Install VSCode (Homebrew)
+      community.general.homebrew_cask:
+        name: visual-studio-code
+        state: present
+      when: ansible_facts['distribution'] == "MacOSX"
+
     - name: Install git (apt)
       become: true
       ansible.builtin.apt:
