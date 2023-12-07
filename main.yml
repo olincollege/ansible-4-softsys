@@ -195,6 +195,7 @@
     - name: Add SSH Key to GitHub
       uri:
         url: https://api.github.com/user/keys
+        status_code: [200,201]
         method: POST
         body_format: json
         headers:
@@ -206,3 +207,4 @@
       register: result
       ignore_errors: true
       when: not skip_ssh
+
