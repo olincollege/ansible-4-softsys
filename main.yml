@@ -1,4 +1,6 @@
 ---
+# Ansible playbook for setting up SoftSys environment
+
 - name: SoftSys Set Up
   hosts: 127.0.0.1
   connection: local
@@ -188,11 +190,13 @@
       when: not skip_ssh
 
     - name: Retrieve SSH Public Key
+      # Display and register the content of the generated SSH public key for later use
       command: cat $HOME/.ssh/id_ecdsa.pub
       register: public_key
       when: not skip_ssh
 
     - name: Add SSH Key to GitHub
+      # Use the uri module to send a POST request to GitHub API for adding an SSH key
       uri:
         url: https://api.github.com/user/keys
         status_code: [200,201]
@@ -202,6 +206,7 @@
           Authorization: "token {{ github_token }}"
           Content-Type: "application/json"
         body:
+          # Specify the title and key for the GitHub SSH key
           title: "{{ github_ssh_key_title }}"
           key: "{{ public_key.stdout }}"
       register: result
