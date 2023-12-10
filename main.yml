@@ -189,12 +189,19 @@
         - ms-vscode.cmake-tools
         - xaver.clang-format
 
-    - name: Open VSCode Settings File
+    - name: Open VSCode Settings File (apt)
       include_vars:
         file: $HOME/.config/Code/User/settings.json
         name: settings_file
       when:
         ansible_facts['distribution'] == "Ubuntu" and not skip_vscode_settings
+
+    - name: Open VSCode Settings File (Homebrew)
+      include_vars:
+        file: $HOME/Library/Application\ Support/Code/User/settings.json
+        name: settings_file
+      when:
+        ansible_facts['distribution'] == "MacOSX" and not skip_vscode_settings
 
     - name: VSCode set "Insert Final New Line"
       set_fact:
@@ -222,12 +229,19 @@
       when:
         not '"prettier.proseWrap" in settings_file' and not skip_vscode_settings
 
-    - name: Close and Update VSCode Settings File
+    - name: Close and Update VSCode Settings File (apt)
       copy:
         content: "{{ settings_file | to_nice_json }}"
         dest: $HOME/.config/Code/User/settings.json
       when:
         ansible_facts['distribution'] == "Ubuntu" and not skip_vscode_settings
+
+    - name: Close and Update VSCode Settings File (Homebrew)
+      copy:
+        content: "{{ settings_file | to_nice_json }}"
+        dest: $HOME/Library/Application\ Support/Code/User/settings.json
+      when:
+        ansible_facts['distribution'] == "MacOSX" and not skip_vscode_settings
 
     - name: Create SSH Key
       command: ssh-keygen -t ecdsa -N "" -f $HOME/.ssh/id_ecdsa
