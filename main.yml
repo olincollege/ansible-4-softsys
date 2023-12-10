@@ -16,21 +16,21 @@
     apt_key_download_path: /tmp/microsoft.asc
     apt_keyring_path: /etc/apt/keyrings/microsoft.gpg
   tasks:
-    - name: Check if git_user_name and git_user_email are provided
-      fail:
-        msg:
-          "Please enter your git_user_name and git_user_email to set up the
-          config or use the skip_git_config flag"
-      when:
-        (git_user_name == "" or git_user_email == "") and not skip_git_config
+    # - name: Check if git_user_name and git_user_email are provided
+    #   fail:
+    #     msg:
+    #       "Please enter your git_user_name and git_user_email to set up the
+    #       config or use the skip_git_config flag"
+    #   when:
+    #     (git_user_name == "" or git_user_email == "") and not skip_git_config
 
-    - name: Check if github_token is provided
-      fail:
-        msg:
-          "Please enter your github_token to add your ssh key or use the
-          skip_ssh flag. If you need to generate a token, please refer to the
-          README."
-      when: (github_token == "") and not skip_ssh
+    # - name: Check if github_token is provided
+    #   fail:
+    #     msg:
+    #       "Please enter your github_token to add your ssh key or use the
+    #       skip_ssh flag. If you need to generate a token, please refer to the
+    #       README."
+    #   when: (github_token == "") and not skip_ssh
 
     - name: Install VSCode (apt)
       block:
@@ -79,119 +79,135 @@
             state: present
       when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install VSCode (Homebrew)
-      community.general.homebrew_cask:
-        name: visual-studio-code
-        state: present
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install VSCode (Homebrew)
+    #   community.general.homebrew_cask:
+    #     name: visual-studio-code
+    #     state: present
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install git (apt)
-      become: true
-      ansible.builtin.apt:
-        name: git
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install git (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: git
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install git (Homebrew)
-      community.general.homebrew:
-        name: git
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install git (Homebrew)
+    #   community.general.homebrew:
+    #     name: git
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Set Git editor
-      command: git config --global core.editor "{{ git_editor }} --wait"
-      ignore_errors: # Ignore errors in case the core.editor is already set
-      when: not skip_git_editor
+    # - name: Set Git editor
+    #   command: git config --global core.editor "{{ git_editor }} --wait"
+    #   ignore_errors: # Ignore errors in case the core.editor is already set
+    #   when: not skip_git_editor
 
-    - name: Set Git user.name
-      command: git config --global user.name "{{ git_user_name }}"
-      ignore_errors: yes
-      when: not skip_git_config
+    # - name: Set Git user.name
+    #   command: git config --global user.name "{{ git_user_name }}"
+    #   ignore_errors: yes
+    #   when: not skip_git_config
 
-    - name: Set Git user.email
-      command: git config --global user.email "{{ git_user_email }}"
-      ignore_errors: yes
-      when: not skip_git_config
+    # - name: Set Git user.email
+    #   command: git config --global user.email "{{ git_user_email }}"
+    #   ignore_errors: yes
+    #   when: not skip_git_config
 
-    - name: Install gcc (apt)
-      become: true
-      ansible.builtin.apt:
-        name: gcc
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install gcc (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: gcc
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install gcc (Homebrew)
-      community.general.homebrew:
-        name: gcc
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install gcc (Homebrew)
+    #   community.general.homebrew:
+    #     name: gcc
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install gdb (apt)
-      become: true
-      ansible.builtin.apt:
-        name: gdb
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install gdb (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: gdb
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install gdb (Homebrew)
-      community.general.homebrew:
-        name: gdb
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install gdb (Homebrew)
+    #   community.general.homebrew:
+    #     name: gdb
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install make (apt)
-      become: true
-      ansible.builtin.apt:
-        name: make
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install make (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: make
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install make (Homebrew)
-      community.general.homebrew:
-        name: make
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install make (Homebrew)
+    #   community.general.homebrew:
+    #     name: make
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install cmake (apt)
-      become: true
-      ansible.builtin.apt:
-        name: cmake
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install cmake (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: cmake
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install cmake (Homebrew)
-      community.general.homebrew:
-        name: cmake
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install cmake (Homebrew)
+    #   community.general.homebrew:
+    #     name: cmake
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install C formatter/linter (apt)
-      become: true
-      ansible.builtin.apt:
-        name:
-          - clang-format
-          - clang-tidy
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install C formatter/linter (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name:
+    #       - clang-format
+    #       - clang-tidy
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install C formatter/linter (Homebrew)
-      community.general.homebrew:
-        name:
-          - clang-format
-          - clang-tidy
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install C formatter/linter (Homebrew)
+    #   community.general.homebrew:
+    #     name:
+    #       - clang-format
+    #       - clang-tidy
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install Criterion (apt)
-      become: true
-      ansible.builtin.apt:
-        name: libcriterion-dev
-      when: ansible_facts['distribution'] == "Ubuntu"
+    # - name: Install Criterion (apt)
+    #   become: true
+    #   ansible.builtin.apt:
+    #     name: libcriterion-dev
+    #   when: ansible_facts['distribution'] == "Ubuntu"
 
-    - name: Install Criterion (Homebrew)
-      community.general.homebrew:
-        name: criterion
-      when: ansible_facts['distribution'] == "MacOSX"
+    # - name: Install Criterion (Homebrew)
+    #   community.general.homebrew:
+    #     name: criterion
+    #   when: ansible_facts['distribution'] == "MacOSX"
 
-    - name: Install VSCode extensions
-      ansible.builtin.shell: code --install-extension {{ item }}
-      loop:
-        - esbenp.prettier-vscode
-        - ms-vscode.cpptools
-        - ms-vscode.cmake-tools
-        - xaver.clang-format
+    # - name: Install VSCode extensions
+    #   ansible.builtin.shell: code --install-extension {{ item }}
+    #   loop:
+    #     - esbenp.prettier-vscode
+    #     - ms-vscode.cpptools
+    #     - ms-vscode.cmake-tools
+    #     - xaver.clang-format
+
+    - name: Ensure VSCode settings directory exists (apt)
+      ansible.builtin.file:
+        path: "{{ansible_env.HOME}}/.config/Code/User"
+        state: directory
+
+    - name: Ensure VSCode settings file exists (apt)
+      ansible.builtin.stat:
+        path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+      register: tmp_file
+
+    - name: Create file in VSCode Settings (apt)
+      ansible.builtin.file:
+        path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+        state: touch
+      when: tmp_file.stat.exists == false
 
     - name: Open VSCode Settings File (apt)
       include_vars:
-        file: $HOME/.config/Code/User/settings.json
+        file: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
         name: settings_file
       when: ansible_facts['distribution'] == "Ubuntu"
 
@@ -225,7 +241,7 @@
     - name: Close and Update VSCode Settings File (apt)
       copy:
         content: "{{ settings_file | to_nice_json }}"
-        dest: $HOME/.config/Code/User/settings.json
+        dest: ../../.config/Code/User/settings.json
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Close and Update VSCode Settings File (Homebrew)
