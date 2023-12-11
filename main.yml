@@ -18,7 +18,7 @@
   tasks:
     # Alerts for setting up git variables
     - name: Check if git_user_name and git_user_email are provided
-      fail:
+      ansible.builtin.fail:
         msg:
           "Please enter your git_user_name and git_user_email to set up the
           config or use the skip_git_config flag"
@@ -26,7 +26,7 @@
         (git_user_name == "" or git_user_email == "") and not skip_git_config
 
     - name: Check if github_token is provided
-      fail:
+      ansible.builtin.fail:
         msg:
           "Please enter your github_token to add your ssh key or use the
           skip_ssh flag. If you need to generate a token, please refer to the
@@ -35,6 +35,7 @@
 
     # Installs for tools (VSCode + git)
     - name: Install VSCode (apt)
+      when: ansible_facts['distribution'] == "Ubuntu"
       block:
         - name: Install GPG
           become: true
@@ -79,7 +80,6 @@
           ansible.builtin.apt:
             name: code
             state: present
-      when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Install VSCode (Homebrew)
       community.general.homebrew_cask:
@@ -100,17 +100,20 @@
 
     # Configure git using the set variables
     - name: Set Git editor
-      command: git config --global core.editor "{{ git_editor }} --wait"
+      ansible.builtin.command:
+        git config --global core.editor "{{ git_editor }} --wait"
       ignore_errors: # Ignore errors in case the core.editor is already set
       when: not skip_git_editor
 
     - name: Set Git user.name
-      command: git config --global user.name "{{ git_user_name }}"
+      ansible.builtin.command:
+        git config --global user.name "{{ git_user_name }}"
       ignore_errors: yes
       when: not skip_git_config
 
     - name: Set Git user.email
-      command: git config --global user.email "{{ git_user_email }}"
+      ansible.builtin.command:
+        git config --global user.email "{{ git_user_email }}"
       ignore_errors: yes
       when: not skip_git_config
 
@@ -197,114 +200,112 @@
     # VSCode Settings (JSON File Configuration) Setup (apt)
     - name: Ensure VSCode settings directory exists (apt)
       ansible.builtin.file:
-        path: "{{ansible_env.HOME}}/.config/Code/User"
+        path: "{{ ansible_env.HOME }}/.config/Code/User"
         state: directory
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Ensure VSCode settings file exists (apt)
       ansible.builtin.stat:
-        path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+        path: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
       register: tmp_file
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Create file in VSCode Settings (apt)
       ansible.builtin.file:
-        path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+        path: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
         state: touch
       when:
-        tmp_file.stat.exists == false and ansible_facts['distribution'] ==
-        "Ubuntu"
+        not tmp_file.stat.exists and ansible_facts['distribution'] == "Ubuntu"
 
     - name: Open VSCode Settings File (apt)
-      include_vars:
-        file: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+      ansible.builtin.include_vars:
+        file: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
         name: settings_file
       when: ansible_facts['distribution'] == "Ubuntu"
 
     # VSCode Settings (JSON File Configuration) Setup (Homebrew)
     - name: Ensure VSCode settings directory exists (Homebrew)
       ansible.builtin.file:
-        path: "{{ansible_env.HOME}}/Library/Application\
+        path: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User"
         state: directory
       when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Ensure VSCode settings file exists (Homebrew)
       ansible.builtin.stat:
-        path: "{{ansible_env.HOME}}/Library/Application\
+        path: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
       register: tmp_file
       when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Create file in VSCode Settings (Homebrew)
       ansible.builtin.file:
-        path: "{{ansible_env.HOME}}/Library/Application\
+        path: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
         state: touch
       when:
-        tmp_file.stat.exists == false and ansible_facts['distribution'] ==
-        "MacOSX"
+        not tmp_file.stat.exists and ansible_facts['distribution'] == "MacOSX"
 
     - name: Open VSCode Settings File (Homebrew)
       include_vars:
-        file: "{{ansible_env.HOME}}/Library/Application\
+        file: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
         name: settings_file
       when: ansible_facts['distribution'] == "MacOSX"
 
     # VSCode Settings (JSON File Configuration) Actual
     - name: VSCode set "Insert Final New Line"
-      set_fact:
+      ansible.builtin.set_fact:
         settings_file:
-          "{{ settings_file | default([]) | combine({
-          'files.insertFinalNewline': true }) }}"
+          "{{ settings_file | default([]) | combine({'files.insertFinalNewline':
+          true}) }}"
       when: not "files.insertFinalNewline" in settings_file
 
     - name: VSCode set "Format on Save"
-      set_fact:
+      ansible.builtin.set_fact:
         settings_file:
-          "{{ settings_file | default([]) | combine({ 'editor.formatOnSave':
-          true }) }}"
+          "{{ settings_file | default([]) | combine({'editor.formatOnSave':
+          true}) }}"
       when: not "editor.formatOnSave" in settings_file
 
     - name: VSCode set "Prose Wrap"
-      set_fact:
+      ansible.builtin.set_fact:
         settings_file:
-          "{{ settings_file | default([]) | combine({ 'prettier.proseWrap':
-          'always' }) }}"
+          "{{ settings_file | default([]) | combine({'prettier.proseWrap':
+          'always'}) }}"
       when: not "prettier.proseWrap" in settings_file
 
     # VSCode Settings (JSON File Configuration) Finalize
     - name: Close and Update VSCode Settings File (apt)
-      copy:
+      ansible.builtin.copy:
         content: "{{ settings_file | to_nice_json }}"
-        dest: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
+        dest: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Close and Update VSCode Settings File (Homebrew)
-      copy:
+      ansible.builtin.copy:
         content: "{{ settings_file | to_nice_json }}"
-        dest: "{{ansible_env.HOME}}/Library/Application\
+        dest: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
       when: ansible_facts['distribution'] == "MacOSX"
 
     # SSH Key Setup
     - name: Create SSH Key
-      command: ssh-keygen -t ecdsa -N "" -f $HOME/.ssh/id_ecdsa
+      ansible.builtin.command: ssh-keygen -t ecdsa -N "" -f $HOME/.ssh/id_ecdsa
       args:
         creates: "{{ ansible_env.HOME }}/.ssh/id_ecdsa"
       when: not skip_ssh
 
     - name: Retrieve SSH Public Key
       # Display and register the content of the generated SSH public key for later use
-      command: cat $HOME/.ssh/id_ecdsa.pub
+      ansible.builtin.command: cat $HOME/.ssh/id_ecdsa.pub
       register: public_key
       when: not skip_ssh
 
     # SSH Key Actual
     - name: Add SSH Key to GitHub
       # Use the uri module to send a POST request to GitHub API for adding an SSH key
-      uri:
+      ansible.builtin.uri:
         url: https://api.github.com/user/keys
         status_code: [200, 201]
         method: POST
