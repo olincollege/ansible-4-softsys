@@ -31,7 +31,8 @@ If you want to skip SSH key configuration, you're all done! Read about **flags**
 #### Github Token Generation
 
 1. In the upper-right corner of any page, click your profile photo, then click **Settings**.
-![image](https://github.com/olincollege/ansible-4-softsys/assets/95325894/c8cfbabe-b37f-4d05-93b4-eaa79c12edb9)
+
+[<img src="https://github.com/olincollege/ansible-4-softsys/assets/95325894/c8cfbabe-b37f-4d05-93b4-eaa79c12edb9)" width="250"/>](https://github.com/olincollege/ansible-4-softsys/assets/95325894/c8cfbabe-b37f-4d05-93b4-eaa79c12edb9)
 
 2. In the left sidebar, click **<> Developer settings**.
 3. In the left sidebar, click **Personal access tokens**.
