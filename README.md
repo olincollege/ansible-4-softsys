@@ -10,16 +10,27 @@
 
 In order to run this playbook, first clone this repository onto your machine:
 ```
+git clone git@github.com:olincollege/ansible-4-softsys.git
 ```
 
-Then, make sure you have ansible and docker installed:
+Then, make sure you have ansible and docker installed (and properly versioned):
 ```
+ansible --version
+docker --version
 ```
+
+To install ansible:
+```
+sudo apt update
+sudo apt install ansible
+```
+Docker install instructions can be found [here](https://docs.docker.com/engine/install/ubuntu/).
+
 If you want to skip SSH key configuration, you're all done! Read about **flags** below, and then run the **command** from within the directory containing the playbook. If not, then generate a Github Access Token first.
 
 #### Github Token Generation
 
-
+***STUFF HERE***
 
 ### Actual Use
 
