@@ -199,17 +199,21 @@
       ansible.builtin.file:
         path: "{{ansible_env.HOME}}/.config/Code/User"
         state: directory
+      when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Ensure VSCode settings file exists (apt)
       ansible.builtin.stat:
         path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
       register: tmp_file
+      when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Create file in VSCode Settings (apt)
       ansible.builtin.file:
         path: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
         state: touch
-      when: tmp_file.stat.exists == false
+      when:
+        tmp_file.stat.exists == false and ansible_facts['distribution'] ==
+        "Ubuntu"
 
     - name: Open VSCode Settings File (apt)
       include_vars:
@@ -218,6 +222,29 @@
       when: ansible_facts['distribution'] == "Ubuntu"
 
     # VSCode Settings (JSON File Configuration) Setup (Homebrew)
+    - name: Ensure VSCode settings directory exists (Homebrew)
+      ansible.builtin.file:
+        path: "{{ansible_env.HOME}}/Library/Application\
+          Support/Code/User"
+        state: directory
+      when: ansible_facts['distribution'] == "MacOSX"
+
+    - name: Ensure VSCode settings file exists (Homebrew)
+      ansible.builtin.stat:
+        path: "{{ansible_env.HOME}}/Library/Application\
+          Support/Code/User/settings.json"
+      register: tmp_file
+      when: ansible_facts['distribution'] == "MacOSX"
+
+    - name: Create file in VSCode Settings (Homebrew)
+      ansible.builtin.file:
+        path: "{{ansible_env.HOME}}/Library/Application\
+          Support/Code/User/settings.json"
+        state: touch
+      when:
+        tmp_file.stat.exists == false and ansible_facts['distribution'] ==
+        "MacOSX"
+
     - name: Open VSCode Settings File (Homebrew)
       include_vars:
         file: "{{ansible_env.HOME}}/Library/Application\
