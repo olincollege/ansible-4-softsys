@@ -213,7 +213,8 @@
 
     - name: Open VSCode Settings File (Homebrew)
       include_vars:
-        file: $HOME/Library/Application\ Support/Code/User/settings.json
+        file: "{{ansible_env.HOME}}/Library/Application\
+          Support/Code/User/settings.json"
         name: settings_file
       when: ansible_facts['distribution'] == "MacOSX"
 
@@ -224,14 +225,14 @@
           'files.insertFinalNewline': true }) }}"
       when: not '"files.insertFinalNewline" in settings_file'
 
-    - name: VSCode set "Insert Final New Line"
+    - name: VSCode set "Format on Save"
       set_fact:
         settings_file:
           "{{ settings_file | default([]) | combine({ 'editor.formatOnSave':
           true }) }}"
       when: not '"editor.formatOnSave" in settings_file'
 
-    - name: VSCode set "Insert Final New Line"
+    - name: VSCode set "Prose Wrap"
       set_fact:
         settings_file:
           "{{ settings_file | default([]) | combine({ 'prettier.proseWrap':
@@ -241,13 +242,14 @@
     - name: Close and Update VSCode Settings File (apt)
       copy:
         content: "{{ settings_file | to_nice_json }}"
-        dest: ../../.config/Code/User/settings.json
+        dest: "{{ansible_env.HOME}}/.config/Code/User/settings.json"
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Close and Update VSCode Settings File (Homebrew)
       copy:
         content: "{{ settings_file | to_nice_json }}"
-        dest: $HOME/Library/Application\ Support/Code/User/settings.json
+        dest: "{{ansible_env.HOME}}/Library/Application\
+          Support/Code/User/settings.json"
       when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Create SSH Key
