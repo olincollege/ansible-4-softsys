@@ -1,6 +1,6 @@
 # Ansible Playbook for SoftSys Setup
 ### Final Project for Extraordinary Tools in Computing Fall 2023
-*Contributors: Shree Madan, Daeyoung Kim, Meredith Alley
+*Contributors: Shree Madan, Daeyoung Kim, Meredith Alley*
 
 ![Screenshot from 2023-12-10 18-33-35](https://github.com/olincollege/ansible-4-softsys/assets/95325894/53cba5b4-e437-4450-b312-4682e6542fb0)
 
@@ -8,7 +8,18 @@
 
 ### Setup
 
+In order to run this playbook, first clone this repository onto your machine:
+```
+```
+
+Then, make sure you have ansible and docker installed:
+```
+```
+If you want to skip SSH key configuration, you're all done! Read about **flags** below, and then run the **command** from within the directory containing the playbook. If not, then generate a Github Access Token first.
+
 #### Github Token Generation
+
+
 
 ### Actual Use
 
@@ -56,7 +67,7 @@ skip_git_editor: true
 
 ***Authenticating this machine with an SSH Key***
 
-Depending on if the user would like to set as their primary Git editor, they should either use the following flag with their corresponding editor (default: 'code'[VSCode]):
+Depending on if the user would like to add an SSH key in order to allow this machine to write to Github without inputting their access token every time, they should either input their token (generated above) and intended name for the storage of the SSH key:
 
 ```
 github_ssh_key_title: "SSH key for SoftSys" github_token: "xxxx"  
@@ -81,8 +92,11 @@ Then, run the container:
 ```
 docker container run -it test-ansible
 ```
-*When prompted for the BECOME password, just press enter.*
+When prompted for the BECOME password, just press enter.
 
-## Premise
+***Flag Info*** 
 
-### 
+The container is run with a configuration that skips the SSH key step, meaning the user doesn't have to input a Github token, and with a dummy Github account. The combination of flags used is:
+```
+"git_user_name=Alan Turing git_user_email=alan@turing.org skip_ssh=true"
+```
