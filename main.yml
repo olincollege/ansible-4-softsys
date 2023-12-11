@@ -104,7 +104,7 @@
         name: core.editor
         scope: global
         value: "{{ git_editor }}"
-      ignore_errors: true # Ignore errors in case the core.editor is already set
+      failed_when: false # Ignore errors in case the core.editor is already set
       when: not skip_git_editor
 
     - name: Set Git user.name
@@ -112,7 +112,7 @@
         name: user.name
         scope: global
         value: "{{ git_user_name }}"
-      ignore_errors: true
+      failed_when: false
       when: not skip_git_config
 
     - name: Set Git user.email
@@ -120,7 +120,7 @@
         name: user.email
         scope: global
         value: "{{ git_user_email }}"
-      ignore_errors: true
+      failed_when: false
       when: not skip_git_config
 
     # Install packages
@@ -202,12 +202,14 @@
         - ms-vscode.cpptools
         - ms-vscode.cmake-tools
         - xaver.clang-format
+      changed_when: true
 
     # VSCode Settings (JSON File Configuration) Setup (apt)
     - name: Ensure VSCode settings directory exists (apt)
       ansible.builtin.file:
         path: "{{ ansible_env.HOME }}/.config/Code/User"
         state: directory
+        mode: "0644"
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Ensure VSCode settings file exists (apt)
@@ -220,6 +222,7 @@
       ansible.builtin.file:
         path: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
         state: touch
+        mode: "0644"
       when:
         not tmp_file.stat.exists and ansible_facts['distribution'] == "Ubuntu"
 
@@ -235,6 +238,7 @@
         path: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User"
         state: directory
+        mode: "0644"
       when: ansible_facts['distribution'] == "MacOSX"
 
     - name: Ensure VSCode settings file exists (Homebrew)
@@ -249,6 +253,7 @@
         path: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
         state: touch
+        mode: "0644"
       when:
         not tmp_file.stat.exists and ansible_facts['distribution'] == "MacOSX"
 
@@ -286,6 +291,7 @@
       ansible.builtin.copy:
         content: "{{ settings_file | to_nice_json }}"
         dest: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
+        mode: "0644"
       when: ansible_facts['distribution'] == "Ubuntu"
 
     - name: Close and Update VSCode Settings File (Homebrew)
@@ -293,6 +299,7 @@
         content: "{{ settings_file | to_nice_json }}"
         dest: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
+        mode: "0644"
       when: ansible_facts['distribution'] == "MacOSX"
 
     # SSH Key Setup
