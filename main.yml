@@ -68,7 +68,7 @@
           register: dpkg_arch
         - name: Add VSCode repository
           become: true
-          apt_repository:
+          ansible.builtin.apt_repository:
             filename: vscode
             repo: >-
               deb [arch={{ dpkg_arch.stdout }} signed-by={{ apt_keyring_path }}]
@@ -100,21 +100,27 @@
 
     # Configure git using the set variables
     - name: Set Git editor
-      ansible.builtin.command:
-        git config --global core.editor "{{ git_editor }} --wait"
-      ignore_errors: # Ignore errors in case the core.editor is already set
+      community.general.git_config:
+        name: core.editor
+        scope: global
+        value: "{{ git_editor }}"
+      ignore_errors: true # Ignore errors in case the core.editor is already set
       when: not skip_git_editor
 
     - name: Set Git user.name
-      ansible.builtin.command:
-        git config --global user.name "{{ git_user_name }}"
-      ignore_errors: yes
+      community.general.git_config:
+        name: user.name
+        scope: global
+        value: "{{ git_user_name }}"
+      ignore_errors: true
       when: not skip_git_config
 
     - name: Set Git user.email
-      ansible.builtin.command:
-        git config --global user.email "{{ git_user_email }}"
-      ignore_errors: yes
+      community.general.git_config:
+        name: user.email
+        scope: global
+        value: "{{ git_user_email }}"
+      ignore_errors: true
       when: not skip_git_config
 
     # Install packages
@@ -190,7 +196,7 @@
 
     # Configuring the VSCode install
     - name: Install VSCode extensions
-      ansible.builtin.shell: code --install-extension {{ item }}
+      ansible.builtin.command: code --install-extension {{ item }}
       loop:
         - esbenp.prettier-vscode
         - ms-vscode.cpptools
@@ -247,7 +253,7 @@
         not tmp_file.stat.exists and ansible_facts['distribution'] == "MacOSX"
 
     - name: Open VSCode Settings File (Homebrew)
-      include_vars:
+      ansible.builtin.include_vars:
         file: "{{ ansible_env.HOME }}/Library/Application\
           Support/Code/User/settings.json"
         name: settings_file
@@ -298,8 +304,9 @@
 
     - name: Retrieve SSH Public Key
       # Display and register the content of the generated SSH public key for later use
-      ansible.builtin.command: cat $HOME/.ssh/id_ecdsa.pub
-      register: public_key
+      ansible.builtin.include_vars:
+        file: "{{ ansible_env.HOME }}/.ssh/id_ecdsa.pub"
+        name: public_key
       when: not skip_ssh
 
     # SSH Key Actual
