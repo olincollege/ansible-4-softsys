@@ -16,6 +16,7 @@
     apt_key_download_path: /tmp/microsoft.asc
     apt_keyring_path: /etc/apt/keyrings/microsoft.gpg
   tasks:
+    # Alerts for setting up git variables
     - name: Check if git_user_name and git_user_email are provided
       fail:
         msg:
@@ -32,6 +33,7 @@
           README."
       when: (github_token == "") and not skip_ssh
 
+    # Installs for tools (VSCode + git)
     - name: Install VSCode (apt)
       block:
         - name: Install GPG
@@ -96,6 +98,7 @@
         name: git
       when: ansible_facts['distribution'] == "MacOSX"
 
+    # Configure git using the set variables
     - name: Set Git editor
       command: git config --global core.editor "{{ git_editor }} --wait"
       ignore_errors: # Ignore errors in case the core.editor is already set
@@ -111,6 +114,7 @@
       ignore_errors: yes
       when: not skip_git_config
 
+    # Install packages
     - name: Install gcc (apt)
       become: true
       ansible.builtin.apt:
@@ -181,6 +185,7 @@
         name: criterion
       when: ansible_facts['distribution'] == "MacOSX"
 
+    # Configuring the VSCode install
     - name: Install VSCode extensions
       ansible.builtin.shell: code --install-extension {{ item }}
       loop:
@@ -189,6 +194,7 @@
         - ms-vscode.cmake-tools
         - xaver.clang-format
 
+    # VSCode Settings (JSON File Configuration) Setup (apt)
     - name: Ensure VSCode settings directory exists (apt)
       ansible.builtin.file:
         path: "{{ansible_env.HOME}}/.config/Code/User"
@@ -211,6 +217,7 @@
         name: settings_file
       when: ansible_facts['distribution'] == "Ubuntu"
 
+    # VSCode Settings (JSON File Configuration) Setup (Homebrew)
     - name: Open VSCode Settings File (Homebrew)
       include_vars:
         file: "{{ansible_env.HOME}}/Library/Application\
@@ -218,6 +225,7 @@
         name: settings_file
       when: ansible_facts['distribution'] == "MacOSX"
 
+    # VSCode Settings (JSON File Configuration) Actual
     - name: VSCode set "Insert Final New Line"
       set_fact:
         settings_file:
@@ -239,6 +247,7 @@
           'always' }) }}"
       when: not "prettier.proseWrap" in settings_file
 
+    # VSCode Settings (JSON File Configuration) Finalize
     - name: Close and Update VSCode Settings File (apt)
       copy:
         content: "{{ settings_file | to_nice_json }}"
@@ -252,6 +261,7 @@
           Support/Code/User/settings.json"
       when: ansible_facts['distribution'] == "MacOSX"
 
+    # SSH Key Setup
     - name: Create SSH Key
       command: ssh-keygen -t ecdsa -N "" -f $HOME/.ssh/id_ecdsa
       args:
@@ -264,6 +274,7 @@
       register: public_key
       when: not skip_ssh
 
+    # SSH Key Actual
     - name: Add SSH Key to GitHub
       # Use the uri module to send a POST request to GitHub API for adding an SSH key
       uri:
