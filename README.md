@@ -39,7 +39,7 @@ If you want to skip SSH key configuration, you're all done! Read about **flags**
 4. Click **Generate new token**.
 5. In the "Note" field, give your token a descriptive name.
 6. To give your token an expiration, select **Expiration**, then choose a default option or click **Custom** to enter a date. 7 days should be more than sufficient, depending on when you plan on running the playbook.
-7. Select the scopes you'd like to grant this token. ***SHREE - which scopes are necessary here?***
+7. Select the scopes you'd like to grant this token. At minimum, you'll need to give it write:public_key access.
 8. Click **Generate token**.
 9. Copy the toekn to your clipboard to store it somewhere. Once you click off of this page, you will not be able to access it again.
 
